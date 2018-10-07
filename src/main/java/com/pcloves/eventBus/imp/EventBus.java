@@ -4,6 +4,7 @@ import com.pcloves.eventBus.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -35,7 +36,11 @@ public class EventBus implements IEventBus
                                                            final IEventHandler<T, E> eventHandler,
                                                            final EEventPriority priority)
     {
-        if(eventHandler2HandlerDataMap.containsKey(eventHandler)) return;
+		final int modifiers = eventHandler.getClass().getModifiers();
+		boolean isFinal = Modifier.isFinal(modifiers);
+		if(!isFinal) return;
+
+		if(eventHandler2HandlerDataMap.containsKey(eventHandler)) return;
 
         final List<EventHandlerData> handlerDataList = eventType2HandlerDataListMap.computeIfAbsent(eventType, k -> new LinkedList<>());
         final EventHandlerData handlerData = new EventHandlerData(priority, subscriber, eventHandler);
@@ -47,6 +52,10 @@ public class EventBus implements IEventBus
 
     @Override public <T, E extends IEvent> void unRegisterEvent(final Class<E> eventType, final IEventHandler<T, E> eventHandler)
     {
+		final int modifiers = eventHandler.getClass().getModifiers();
+		boolean isFinal = Modifier.isFinal(modifiers);
+		if(!isFinal) return;
+		
         final EventHandlerData handlerData = eventHandler2HandlerDataMap.get(eventHandler);
         if(handlerData == null) return;
         eventHandler2HandlerDataMap.remove(eventHandler);

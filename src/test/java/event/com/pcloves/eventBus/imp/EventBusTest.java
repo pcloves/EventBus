@@ -15,11 +15,13 @@ class EventBusTest
 	private static final int LoopCount = 100000;
 	private IEventBus eventBus;
 	private EventHandler eventHandler;
+	private EventHandler1 eventHandler1;
 
 	@BeforeEach void setUp()
 	{
 		eventBus = new EventBus();
 		eventHandler = new EventHandler();
+		eventHandler1 = new EventHandler1();
 	}
 
 	@Test void  testCallCount()
@@ -85,5 +87,18 @@ class EventBusTest
 
 		eventBus.dispatchCachedEvent(50000);
 		Assertions.assertEquals(Math.min(loopCount, 50000), eventHandler.eventCallCount);
+	}
+
+	@Test void  testEventPriority()
+	{
+		eventBus.registerEvent(eventHandler, Event.class, EventHandler.handleEvent, EEventPriority.Normal);
+		eventBus.registerEvent(eventHandler1, Event.class, EventHandler1.handleEvent, EEventPriority.High);
+
+		final Event event = new Event(100);
+		eventBus.sendEvent(event);
+
+		Assertions.assertEquals(eventHandler1.eventParam, 100);
+		Assertions.assertEquals(eventHandler.eventParam, 101);
+		Assertions.assertEquals(event.param, 102);
 	}
 }
