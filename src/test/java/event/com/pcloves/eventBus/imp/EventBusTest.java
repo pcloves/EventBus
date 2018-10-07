@@ -14,17 +14,19 @@ class EventBusTest
 {
 	private static final int LoopCount = 100000;
 	private IEventBus eventBus;
+	private EventHandler eventHandler;
 
 	@BeforeEach void setUp()
 	{
 		eventBus = new EventBus();
+		eventHandler = new EventHandler();
 		EventHandler.event1CallCount = 0;
 		EventHandler.eventCallCount = 0;
 	}
 
 	@Test void  testCallCount()
 	{
-		eventBus.registerEvent(this, Event.class, EventHandler.handleEvent, EEventPriority.Normal);
+		eventBus.registerEvent(eventHandler, Event.class, EventHandler.handleEvent, EEventPriority.Normal);
 
 		for (int i = 0; i < LoopCount; i++)
 		{
@@ -37,12 +39,12 @@ class EventBusTest
 
 	@Test void  testUnregisterEvent()
 	{
-		final IEventHandler<Event> handleEvent = EventHandler.handleEvent;
+		final IEventHandler<EventHandler, Event> handleEvent = EventHandler.handleEvent;
 
 		Assertions.assertEquals(handleEvent, EventHandler.handleEvent);
 
-		eventBus.registerEvent(this, Event.class, EventHandler.handleEvent, EEventPriority.Normal);
-		eventBus.registerEvent(this, Event.class, EventHandler.handleEvent, EEventPriority.Normal);
+		eventBus.registerEvent(eventHandler, Event.class, EventHandler.handleEvent, EEventPriority.Normal);
+		eventBus.registerEvent(eventHandler, Event.class, EventHandler.handleEvent, EEventPriority.Normal);
 
 		eventBus.unRegisterEvent(Event.class, handleEvent);
 
@@ -57,8 +59,8 @@ class EventBusTest
 
 	@Test void  testEventFilter()
 	{
-		eventBus.registerEvent(this, Event.class, EventHandler.handleEvent, EEventPriority.Normal);
-		eventBus.registerEvent(this, Event1.class, EventHandler.handleEvent1, EEventPriority.Normal);
+		eventBus.registerEvent(eventHandler, Event.class, EventHandler.handleEvent, EEventPriority.Normal);
+		eventBus.registerEvent(eventHandler, Event1.class, EventHandler.handleEvent1, EEventPriority.Normal);
 		eventBus.addEventFilter(Event.class, EventHandler.filterEvent);
 
 		for (int i = 0; i < LoopCount; i++)
@@ -73,7 +75,7 @@ class EventBusTest
 
 	@Test void  testPostEvent()
 	{
-		eventBus.registerEvent(this, Event.class, EventHandler.handleEvent, EEventPriority.Normal);
+		eventBus.registerEvent(eventHandler, Event.class, EventHandler.handleEvent, EEventPriority.Normal);
 
 		int loopCount = new Random(System.currentTimeMillis()).nextInt(2 * LoopCount);
 		for (int i = 0; i < loopCount; i++)

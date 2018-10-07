@@ -30,9 +30,9 @@ public class EventBus implements IEventBus
         }
     }
 
-    @Override public <E extends IEvent> void registerEvent(final Object subscriber,
+    @Override public <T, E extends IEvent> void registerEvent(final T subscriber,
                                                            final Class<E> eventType,
-                                                           final IEventHandler<E> eventHandler,
+                                                           final IEventHandler<T, E> eventHandler,
                                                            final EEventPriority priority)
     {
         if(eventHandler2HandlerDataMap.containsKey(eventHandler)) return;
@@ -45,7 +45,7 @@ public class EventBus implements IEventBus
         eventHandler2HandlerDataMap.put(eventHandler, handlerData);
     }
 
-    @Override public <E extends IEvent> void unRegisterEvent(final Class<E> eventType, final IEventHandler<E> eventHandler)
+    @Override public <T, E extends IEvent> void unRegisterEvent(final Class<E> eventType, final IEventHandler<T, E> eventHandler)
     {
         final EventHandlerData handlerData = eventHandler2HandlerDataMap.get(eventHandler);
         if(handlerData == null) return;
@@ -56,13 +56,13 @@ public class EventBus implements IEventBus
         handlerDataList.remove(handlerData);
     }
 
-	@Override public <E extends IEvent> void addEventFilter(final Class<E> eventType, final IEventFilter<E> eventFilter)
+	@Override public <T, E extends IEvent> void addEventFilter(final Class<E> eventType, final IEventFilter<T, E> eventFilter)
 	{
 		Set<IEventFilter> eventFilterSet = eventType2EventFilterSetMap.computeIfAbsent(eventType, k -> new HashSet<>(10));
 		eventFilterSet.add(eventFilter);
 	}
 
-	@Override public <E extends IEvent> void removeEventFilter(final Class<E> eventType, final IEventFilter<E> eventFilter)
+	@Override public <T, E extends IEvent> void removeEventFilter(final Class<E> eventType, final IEventFilter<T, E> eventFilter)
 	{
 		Set<IEventFilter> eventFilterSet = eventType2EventFilterSetMap.get(eventType);
 		if(eventFilterSet == null) return;

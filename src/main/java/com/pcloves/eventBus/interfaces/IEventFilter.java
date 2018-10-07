@@ -1,7 +1,7 @@
 package com.pcloves.eventBus.interfaces;
 
 @FunctionalInterface
-public interface IEventFilter<E extends IEvent>
+public interface IEventFilter<T, E extends IEvent>
 {
     /**
      * 事件过滤
@@ -9,5 +9,5 @@ public interface IEventFilter<E extends IEvent>
      * @param event 事件
      * @return 返回true表示事件被过滤，否则返回false
      */
-	boolean filter(Object subscriber, E event);
+	boolean filter(T subscriber, E event);
 }
