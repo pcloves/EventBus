@@ -9,8 +9,8 @@ class EventHandler
 	final static IEventHandler<EventHandler, Event1> handleEvent1 = EventHandler::handleEvent1;
 	final static IEventFilter<EventHandler, Event> filterEvent = EventHandler::filterEvent;
 
-	static int eventCallCount = 0;
-	static int event1CallCount = 0;
+	int eventCallCount = 0;
+	int event1CallCount = 0;
 
 	private static boolean filterEvent(final EventHandler eventHandler, final Event event)
 	{
@@ -18,10 +18,10 @@ class EventHandler
 	}
 	private static void handleEvent(final EventHandler eventHandler, final Event event)
 	{
-		eventCallCount++;
+		eventHandler.eventCallCount++;
 	}
 	private static void handleEvent1(final EventHandler eventHandler, final Event1 event1)
     {
-		event1CallCount++;
+		eventHandler.event1CallCount++;
     }
 }

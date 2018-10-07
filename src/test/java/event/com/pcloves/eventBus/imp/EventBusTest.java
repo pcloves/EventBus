@@ -20,8 +20,6 @@ class EventBusTest
 	{
 		eventBus = new EventBus();
 		eventHandler = new EventHandler();
-		EventHandler.event1CallCount = 0;
-		EventHandler.eventCallCount = 0;
 	}
 
 	@Test void  testCallCount()
@@ -33,8 +31,8 @@ class EventBusTest
 			eventBus.sendEvent(new Event(1));
 		}
 
-		Assertions.assertEquals(LoopCount, EventHandler.eventCallCount);
-		Assertions.assertEquals(0, EventHandler.event1CallCount);
+		Assertions.assertEquals(LoopCount, eventHandler.eventCallCount);
+		Assertions.assertEquals(0, eventHandler.event1CallCount);
 	}
 
 	@Test void  testUnregisterEvent()
@@ -53,8 +51,8 @@ class EventBusTest
 			eventBus.sendEvent(new Event(1));
 		}
 
-		Assertions.assertEquals(0, EventHandler.eventCallCount);
-		Assertions.assertEquals(0, EventHandler.event1CallCount);
+		Assertions.assertEquals(0, eventHandler.eventCallCount);
+		Assertions.assertEquals(0, eventHandler.event1CallCount);
 	}
 
 	@Test void  testEventFilter()
@@ -69,8 +67,8 @@ class EventBusTest
 			eventBus.sendEvent(new Event1(i));
 		}
 
-		Assertions.assertEquals(0, EventHandler.eventCallCount);
-		Assertions.assertEquals(LoopCount, EventHandler.event1CallCount);
+		Assertions.assertEquals(0, eventHandler.eventCallCount);
+		Assertions.assertEquals(LoopCount, eventHandler.event1CallCount);
 	}
 
 	@Test void  testPostEvent()
@@ -83,9 +81,9 @@ class EventBusTest
 			eventBus.postEvent(new Event(1));
 		}
 
-		Assertions.assertEquals(0, EventHandler.eventCallCount);
+		Assertions.assertEquals(0, eventHandler.eventCallCount);
 
 		eventBus.dispatchCachedEvent(50000);
-		Assertions.assertEquals(Math.min(loopCount, 50000), EventHandler.eventCallCount);
+		Assertions.assertEquals(Math.min(loopCount, 50000), eventHandler.eventCallCount);
 	}
 }
