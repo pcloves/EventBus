@@ -18,23 +18,20 @@ public class EventBus implements IEventBus
     private final Queue<IEvent> cachedEventQueue = new ConcurrentLinkedQueue<>();
 	private final Map<Class, Set<IEventFilter>> eventType2EventFilterSetMap = new HashMap<>(512);
 
-    private static class EventHandlerData
+    private static class EventHandlerData<E extends IEvent>
     {
         private final long priority;
-        private final Object subscriber;
-        private final IEventHandler handler;
+        private final IEventHandler<E> handler;
 
-        private EventHandlerData(final EEventPriority priority, final Object subscriber, final IEventHandler handler) {
+        private EventHandlerData(final EEventPriority priority, final IEventHandler<E> handler) {
             this.priority = ((long) priority.ordinal() << 60) + (index++);
-            this.subscriber = subscriber;
             this.handler = handler;
         }
     }
 
-    @Override public <T, E extends IEvent> void registerEvent(final T subscriber,
-                                                           final Class<E> eventType,
-                                                           final IEventHandler<T, E> eventHandler,
-                                                           final EEventPriority priority)
+    @Override public <E extends IEvent> void registerEvent(final Class<E> eventType,
+														   final IEventHandler<E> eventHandler,
+														   final EEventPriority priority)
     {
 		final int modifiers = eventHandler.getClass().getModifiers();
 		boolean isFinal = Modifier.isFinal(modifiers);
@@ -43,19 +40,20 @@ public class EventBus implements IEventBus
 		if(eventHandler2HandlerDataMap.containsKey(eventHandler)) return;
 
         final List<EventHandlerData> handlerDataList = eventType2HandlerDataListMap.computeIfAbsent(eventType, k -> new LinkedList<>());
-        final EventHandlerData handlerData = new EventHandlerData(priority, subscriber, eventHandler);
+        final EventHandlerData<E> handlerData = new EventHandlerData<>(priority, eventHandler);
 
         handlerDataList.add(handlerData);
         handlerDataList.sort(Comparator.comparing(o -> o.priority));
         eventHandler2HandlerDataMap.put(eventHandler, handlerData);
     }
 
-    @Override public <T, E extends IEvent> void unRegisterEvent(final Class<E> eventType, final IEventHandler<T, E> eventHandler)
+    @Override public <E extends IEvent> void unRegisterEvent(final Class<E> eventType, final IEventHandler<E> eventHandler)
     {
-		final int modifiers = eventHandler.getClass().getModifiers();
+		final Class<? extends IEventHandler> handlerClass = eventHandler.getClass();
+		final int modifiers = handlerClass.getModifiers();
 		boolean isFinal = Modifier.isFinal(modifiers);
 		if(!isFinal) return;
-		
+
         final EventHandlerData handlerData = eventHandler2HandlerDataMap.get(eventHandler);
         if(handlerData == null) return;
         eventHandler2HandlerDataMap.remove(eventHandler);
@@ -65,13 +63,13 @@ public class EventBus implements IEventBus
         handlerDataList.remove(handlerData);
     }
 
-	@Override public <T, E extends IEvent> void addEventFilter(final Class<E> eventType, final IEventFilter<T, E> eventFilter)
+	@Override public <E extends IEvent> void addEventFilter(final Class<E> eventType, final IEventFilter<E> eventFilter)
 	{
 		Set<IEventFilter> eventFilterSet = eventType2EventFilterSetMap.computeIfAbsent(eventType, k -> new HashSet<>(10));
 		eventFilterSet.add(eventFilter);
 	}
 
-	@Override public <T, E extends IEvent> void removeEventFilter(final Class<E> eventType, final IEventFilter<T, E> eventFilter)
+	@Override public <E extends IEvent> void removeEventFilter(final Class<E> eventType, final IEventFilter<E> eventFilter)
 	{
 		Set<IEventFilter> eventFilterSet = eventType2EventFilterSetMap.get(eventType);
 		if(eventFilterSet == null) return;
@@ -81,7 +79,7 @@ public class EventBus implements IEventBus
 
 	@Override public <E extends IEvent> void sendEvent(final E event)
     {
-        final Class eventType = event.getClass();
+        final Class<? extends IEvent> eventType = event.getClass();
 		final List<EventHandlerData> handlerDataList = eventType2HandlerDataListMap.get(eventType);
         if(handlerDataList == null) return;
 
@@ -89,17 +87,15 @@ public class EventBus implements IEventBus
         {
             try
             {
-                final Object subscriber = handlerData.subscriber;
-                final IEventHandler handler = handlerData.handler;
+                final IEventHandler<E> handler = handlerData.handler;
 
 				boolean isFilter = false;
-				Set<IEventFilter> eventFilterSet = eventType2EventFilterSetMap.get(eventType);
+				final Set<IEventFilter> eventFilterSet = eventType2EventFilterSetMap.get(eventType);
 				if(eventFilterSet != null)
 				{
 					for(IEventFilter eventFilter : eventFilterSet)
 					{
-						//noinspection unchecked
-						if(!eventFilter.filter(subscriber, event)){
+						if(!eventFilter.filter(event)){
 							isFilter = true;
 							log.info("event is filtered, event:{}", event.getClass().getSimpleName());
 							break;
@@ -108,8 +104,8 @@ public class EventBus implements IEventBus
 				}
 
 
-                if(!isFilter) //noinspection unchecked
-					handler.handler(subscriber, event);
+                if(!isFilter)
+					handler.handler(event);
             }
             catch (Exception e){
 				log.error("exception caught.", e);

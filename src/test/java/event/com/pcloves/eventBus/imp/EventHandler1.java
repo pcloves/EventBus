@@ -5,25 +5,25 @@ import com.pcloves.eventBus.interfaces.IEventHandler;
 
 class EventHandler1
 {
-	final static IEventHandler<EventHandler1, Event> handleEvent = EventHandler1::handleEvent;
-	final static IEventHandler<EventHandler1, Event1> handleEvent1 = EventHandler1::handleEvent1;
-	final static IEventFilter<EventHandler1, Event> filterEvent = EventHandler1::filterEvent;
+	final IEventHandler<Event> handleEvent = this::handleEvent;
+	final IEventHandler<Event1> handleEvent1 = this::handleEvent1;
+	final IEventFilter<Event> filterEvent = this::filterEvent;
 
 	int eventCallCount = 0;
 	int event1CallCount = 0;
 	int eventParam = 0;
 
-	private static boolean filterEvent(final EventHandler1 eventHandler, final Event event)
+	private boolean filterEvent(final Event event)
 	{
 		return false;
 	}
-	private static void handleEvent(final EventHandler1 eventHandler, final Event event)
+	private void handleEvent(final Event event)
 	{
-		eventHandler.eventCallCount++;
-		eventHandler.eventParam = event.param++;
+		eventCallCount++;
+		eventParam = event.param++;
 	}
-	private static void handleEvent1(final EventHandler1 eventHandler, final Event1 event1)
+	private void handleEvent1(final Event1 event1)
     {
-		eventHandler.event1CallCount++;
+		event1CallCount++;
     }
 }

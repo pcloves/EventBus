@@ -8,43 +8,38 @@ public interface IEventBus
 {
 	/**
 	 * 注册一个事件
-	 * @param subscriber 事件订阅者
 	 * @param eventType 事件类型
 	 * @param eventHandler 事件处理器，必须被final修饰
 	 * @param priority 事件处理器的优先级，事件被分发时，优先级遵循两个原则：1、EEventPriority高的优先
 	 * 分发；2、先注册的优先分发
-	 * @param <T> 事件订阅者类型
 	 * @param <E> 事件类型
 	 */
-    <T, E extends IEvent> void registerEvent(final T subscriber, final Class<E> eventType, final IEventHandler<T, E> eventHandler, final EEventPriority priority);
+    <E extends IEvent> void registerEvent(final Class<E> eventType, final IEventHandler<E> eventHandler, final EEventPriority priority);
 
     /**
      * 反注册某个事件处理器
      * @param eventType 事件类型
      * @param eventHandler 事件处理器，必须被final修饰
-	 * @param <T> 事件订阅者类型
      * @param <E> 事件类型
      */
-    <T, E extends IEvent> void unRegisterEvent(final Class<E> eventType, IEventHandler<T, E> eventHandler);
+    <E extends IEvent> void unRegisterEvent(final Class<E> eventType, IEventHandler<E> eventHandler);
 
 	/**
 	 * 为某个事件添加一个事件过滤器，{@link IEventBus}会在sendEvent时，首先调用所有的事件过滤器，任何一个过滤器截
 	 * 获事件，都会导致事件不会被分发到{@link IEventHandler}上去
 	 * @param eventType 事件类型
 	 * @param eventFilter 事件过滤器
-	 * @param <T> 事件订阅者类型
 	 * @param <E> 事件类型
 	 */
-	<T, E extends IEvent> void addEventFilter(final Class<E> eventType, final IEventFilter<T, E> eventFilter);
+	<E extends IEvent> void addEventFilter(final Class<E> eventType, final IEventFilter<E> eventFilter);
 
 	/**
 	 * 删除一个事件过滤器
 	 * @param eventType 事件类型
 	 * @param eventFilter 事件处理器
-	 * @param <T> 事件订阅者类型
 	 * @param <E> 事件类型
 	 */
-	<T, E extends IEvent> void removeEventFilter(final Class<E> eventType, IEventFilter<T, E> eventFilter);
+	<E extends IEvent> void removeEventFilter(final Class<E> eventType, IEventFilter<E> eventFilter);
 
     /**
      * 发送一个事件，该事件会立刻分发到所有已经注册的{@link IEventHandler}

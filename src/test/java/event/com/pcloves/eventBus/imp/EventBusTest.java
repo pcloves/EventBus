@@ -26,7 +26,7 @@ class EventBusTest
 
 	@Test void  testCallCount()
 	{
-		eventBus.registerEvent(eventHandler, Event.class, EventHandler.handleEvent, EEventPriority.Normal);
+		eventBus.registerEvent(Event.class, eventHandler.handleEvent, EEventPriority.Normal);
 
 		for (int i = 0; i < LoopCount; i++)
 		{
@@ -39,12 +39,12 @@ class EventBusTest
 
 	@Test void  testUnregisterEvent()
 	{
-		final IEventHandler<EventHandler, Event> handleEvent = EventHandler.handleEvent;
+		final IEventHandler<Event> handleEvent = eventHandler.handleEvent;
 
-		Assertions.assertEquals(handleEvent, EventHandler.handleEvent);
+		Assertions.assertEquals(handleEvent, eventHandler.handleEvent);
 
-		eventBus.registerEvent(eventHandler, Event.class, EventHandler.handleEvent, EEventPriority.Normal);
-		eventBus.registerEvent(eventHandler, Event.class, EventHandler.handleEvent, EEventPriority.Normal);
+		eventBus.registerEvent(Event.class, eventHandler.handleEvent, EEventPriority.Normal);
+		eventBus.registerEvent(Event.class, eventHandler.handleEvent, EEventPriority.Normal);
 
 		eventBus.unRegisterEvent(Event.class, handleEvent);
 
@@ -59,9 +59,9 @@ class EventBusTest
 
 	@Test void  testEventFilter()
 	{
-		eventBus.registerEvent(eventHandler, Event.class, EventHandler.handleEvent, EEventPriority.Normal);
-		eventBus.registerEvent(eventHandler, Event1.class, EventHandler.handleEvent1, EEventPriority.Normal);
-		eventBus.addEventFilter(Event.class, EventHandler.filterEvent);
+		eventBus.registerEvent(Event.class, eventHandler.handleEvent, EEventPriority.Normal);
+		eventBus.registerEvent(Event1.class, eventHandler.handleEvent1, EEventPriority.Normal);
+		eventBus.addEventFilter(Event.class, eventHandler.filterEvent);
 
 		for (int i = 0; i < LoopCount; i++)
 		{
@@ -75,7 +75,7 @@ class EventBusTest
 
 	@Test void  testPostEvent()
 	{
-		eventBus.registerEvent(eventHandler, Event.class, EventHandler.handleEvent, EEventPriority.Normal);
+		eventBus.registerEvent(Event.class, eventHandler.handleEvent, EEventPriority.Normal);
 
 		int loopCount = new Random(System.currentTimeMillis()).nextInt(2 * LoopCount);
 		for (int i = 0; i < loopCount; i++)
@@ -91,8 +91,8 @@ class EventBusTest
 
 	@Test void  testEventPriority()
 	{
-		eventBus.registerEvent(eventHandler, Event.class, EventHandler.handleEvent, EEventPriority.Normal);
-		eventBus.registerEvent(eventHandler1, Event.class, EventHandler1.handleEvent, EEventPriority.High);
+		eventBus.registerEvent(Event.class, eventHandler.handleEvent, EEventPriority.Normal);
+		eventBus.registerEvent(Event.class, eventHandler1.handleEvent, EEventPriority.High);
 
 		final Event event = new Event(100);
 		eventBus.sendEvent(event);
